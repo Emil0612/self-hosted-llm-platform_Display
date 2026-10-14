@@ -1,0 +1,20 @@
+# LiteLLM gateway as a systemd *user* unit: no sudo needed.
+# Install to ~/.config/systemd/user/, then:
+#   systemctl --user daemon-reload && systemctl --user enable --now llm-gateway
+#   loginctl enable-linger $USER      # keep user services running after logout
+[Unit]
+Description=LiteLLM gateway
+After=network-online.target <tunnel-unit>.service
+Wants=<tunnel-unit>.service
+
+[Service]
+Type=simple
+WorkingDirectory=%h/llm-gateway
+EnvironmentFile=%h/llm-gateway/<environment-file>
+ExecStart=%h/llm-gateway/.venv/bin/litellm --config config.yaml --host <vpn-address-of-this-node> --port 4000
+Restart=always
+RestartSec=30
+StartLimitIntervalSec=0
+
+[Install]
+WantedBy=default.target

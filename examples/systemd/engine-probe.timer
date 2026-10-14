@@ -1,0 +1,10 @@
+[Unit]
+Description=Run the engine liveness probe every 5 minutes
+
+[Timer]
+# Must exceed the engine's cold start (about 13.5 minutes for the largest model measured).
+OnBootSec=15min
+OnUnitActiveSec=5min
+
+[Install]
+WantedBy=timers.target

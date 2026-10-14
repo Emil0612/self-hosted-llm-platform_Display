@@ -1,0 +1,18 @@
+# Inference engine as a systemd user unit. Restart=always catches a process that exits;
+# the probe timer catches one that is alive but no longer answering.
+[Unit]
+Description=<model> inference server
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=<engine working directory>
+ExecStart=<the exact engine launch command>
+Restart=always
+RestartSec=30
+StartLimitIntervalSec=0
+TimeoutStartSec=300
+KillMode=mixed
+
+[Install]
+WantedBy=default.target

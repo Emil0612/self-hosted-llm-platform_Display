@@ -1,0 +1,29 @@
+# LiteLLM gateway config: one public model name, several backends.
+# Entries that share a model_name form one model group and are load-balanced.
+# All values are placeholders - see docs/runbooks/gateway/litellm-gateway-and-api-keys.md
+model_list:
+  - model_name: <public-model-name>
+    litellm_params:
+      model: openai/<public-model-name>
+      api_base: http://127.0.0.1:8000/v1            # engine on the gateway node
+      api_key: dummy                                # only for a backend launched without a key
+
+  - model_name: <public-model-name>
+    litellm_params:
+      model: openai/<public-model-name>
+      api_base: http://127.0.0.1:<tunnel-port>/v1   # second node, reached through an SSH tunnel
+
+  - model_name: <keyed-model-name>
+    litellm_params:
+      model: openai/<keyed-model-name>
+      api_base: http://127.0.0.1:30000/v1           # a backend that requires its own key
+      api_key: os.environ/BACKEND_KEY               # read from the environment, never inlined
+
+router_settings:
+  routing_strategy: least-busy                      # fewest in-flight requests; see the runbook for when not to
+  num_retries: 0                                    # retries re-send long generations; fail visibly instead
+  cooldown_time: 30                                 # seconds a failing backend is out of rotation
+  allowed_fails: 2                                  # failures before that cooldown applies
+
+general_settings:
+  custom_auth: custom_auth.user_api_key_auth        # a Python import: launch from this directory

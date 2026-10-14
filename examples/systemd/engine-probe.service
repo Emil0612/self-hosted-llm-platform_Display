@@ -1,0 +1,6 @@
+[Unit]
+Description=Liveness probe for the inference engine
+
+[Service]
+Type=oneshot
+ExecStart=%h/bin/engine-probe.sh
